@@ -36,6 +36,10 @@ class Product(Resource):
         output = {'_id': str(new['_id']), 'name': str(new['name']), 'price': int(new['price']), 'desc': str(new['desc'])}
         return jsonify({'product': output})
 
+    def delete(self, product_id):
+        mongo.db.products.remove({'id': ObjectId(product_id)})
+        return jsonify({'message': 'Item has been deleted.'})
+
 
 
 
