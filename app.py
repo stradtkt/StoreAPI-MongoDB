@@ -1,8 +1,11 @@
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
 from flask_restful import Api, Resource
-from bson.objectid import ObjectId
+
+
+
 app = Flask(__name__)
+app.config['MONGO_DBNAME'] = "store_mongo_api"
 app.config["MONGO_URI"] = "mongodb://localhost:27017/store_mongo_api"
 mongo = PyMongo(app)
 api = Api(app)
@@ -16,14 +19,18 @@ class Product(Resource):
         return jsonify({"products": output})
 
     def post(self):
-        products = mongo.db.products
-        name = request.json['name']
-        price = request.json['price']
-        desc = request.post['desc']
-        product_id = products.insert({'name': name, 'price': price, 'desc': desc})
-        new_prod = products.find_one({'id': product_id})
-        product = {'name': new_prod['name'], 'price': new_prod['price'], 'desc': new_prod['desc']}
-        return jsonify({'product': product})
+        data = request.get_json()
+        if not data:
+            data = {'message': 'There has been an error'}
+            return jsonify(data)
+        else:
+            _id = data.get('_id')
+            if id:
+                if mongo.db.products.find_one({"_id": str(_id)}):
+                    return {'message': 'Product already exists'}
+                else:
+                    product = mongo.db.products.insert_one(data)
+        return jsonify(product)
 
     def put(self, product_id):
         product = mongo.db.products
@@ -32,27 +39,22 @@ class Product(Resource):
         desc = request.json['desc']
         data = {'name': name, 'price': price, 'desc': desc}
         product.update({'_id': ObjectId(product_id)}, {'$set': data})
-        new = product.find_one({'_id': ObjectId(product_id)})
+        new = product.find_one({'_id': str(product_id)})
         output = {'_id': str(new['_id']), 'name': str(new['name']), 'price': int(new['price']), 'desc': str(new['desc'])}
         return jsonify({'product': output})
 
     def delete(self, product_id):
-        mongo.db.products.remove({'id': ObjectId(product_id)})
+        mongo.db.products.remove({'_id': str(product_id)})
         return jsonify({'message': 'Item has been deleted.'})
 
 
 
 class Employees(Resource):
     def get(self):
-       employees = mongo.db.employees
-       output = []
-       for e in employees.find():
-           output.append({
-               'name': str(e['name']),
-               'email': str(e['email']),
-               'phone': str(e['phone']),
-               'dep': str(e['dep'])
-           })
+        employees = mongo.db.employees
+        output = []
+        for e in employees.find():
+            output.append({'name': str(e['name']),'email': str(e['email']),'phone': str(e['phone']),'dep': str(e['dep'])})
         return jsonify({'employees': output})
 
 
@@ -63,7 +65,7 @@ class Employees(Resource):
         phone = request.json['phone']
         dep = request.json['dep']
         employee_id = employee.insert({'name': name, 'email': email, 'phone': phone, 'dep': dep})
-        new = employee.find_one({'_id': employee_id})
+        new = employee.find_one({'_id': str(employee_id)})
         emp = {'name': str(new['name']), 'email': str(new['email']), 'phone': str(new['phone']), 'dep': str(new['dep'])}
         return jsonify({'employee': emp})
 
@@ -74,13 +76,13 @@ class Employees(Resource):
         phone = request.json['phone']
         dep = request.json['dep']
         data = {'name': name, 'email': email, 'phone': phone, 'dep': dep}
-        employee.update({'_id': ObjectId(employee_id)}, {'$set': data})
-        new = employee.find_one({'_id': ObjectId(employee_id)})
+        employee.update({'_id': str(employee_id)}, {'$set': data})
+        new = employee.find_one({'_id': str(employee_id)})
         output = {'name': str(new['name']), 'email': str(new['email']), 'phone': str(new['phone']), 'dep': str(new['dep'])}
         return jsonify({'employee': output})
 
     def delete(self, employee_id):
-        mongo.db.emplyees.remove({'id': ObjectId(employee_id)})
+        mongo.db.emplyees.remove({'id': str(employee_id)})
         return jsonify({'message': 'Employee has been deleted.'})
 
 
