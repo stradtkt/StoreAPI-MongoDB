@@ -79,8 +79,9 @@ class Employees(Resource):
         output = {'name': str(new['name']), 'email': str(new['email']), 'phone': str(new['phone']), 'dep': str(new['dep'])}
         return jsonify({'employee': output})
 
-    def delete(self):
-        pass
+    def delete(self, employee_id):
+        mongo.db.emplyees.remove({'id': ObjectId(employee_id)})
+        return jsonify({'message': 'Employee has been deleted.'})
 
 
 
