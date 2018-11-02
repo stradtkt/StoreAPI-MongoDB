@@ -10,10 +10,10 @@ api = Api(app)
 class Product(Resource):
     def get(self):
         products = mongo.db.products
-        products = []
+        output = []
         for p in products.find():
-            products.append({"_id": str(p["_id"]), "name": str(p["name"]), "price": int(p["price"]), "desc": str(p["desc"])})
-        return jsonify({"products": products})
+            output.append({"_id": str(p["_id"]), "name": str(p["name"]), "price": int(p["price"]), "desc": str(p["desc"])})
+        return jsonify({"products": output})
 
     def post(self):
         products = mongo.db.products
@@ -42,12 +42,34 @@ class Product(Resource):
 
 
 
+class Employees(Resource):
+    def get(self):
+       employees = mongo.db.employees
+       output = []
+       for e in employees.find():
+           output.append({
+               'name': str(e['name']),
+               'email': str(e['email']),
+               'phone': str(e['phone']),
+               'dep': str(e['dep'])
+           })
+        return jsonify({'employees': output})
 
+
+    def post(self):
+        pass
+
+    def put(self):
+        pass
+
+    def delete(self):
+        pass
 
 
 
 
 api.add_resource(Product, '/products')
+api.add_resource(Employees, '/employees')
 
 if __name__ == '__main__':
     app.run(debug=True)
