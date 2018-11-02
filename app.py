@@ -67,8 +67,17 @@ class Employees(Resource):
         emp = {'name': str(new['name']), 'email': str(new['email']), 'phone': str(new['phone']), 'dep': str(new['dep'])}
         return jsonify({'employee': emp})
 
-    def put(self):
-        pass
+    def put(self, employee_id):
+        employee = mongo.db.employees
+        name = request.json['name']
+        email = request.json['email']
+        phone = request.json['phone']
+        dep = request.json['dep']
+        data = {'name': name, 'email': email, 'phone': phone, 'dep': dep}
+        employee.update({'_id': ObjectId(employee_id)}, {'$set': data})
+        new = employee.find_one({'_id': ObjectId(employee_id)})
+        output = {'name': str(new['name']), 'email': str(new['email']), 'phone': str(new['phone']), 'dep': str(new['dep'])}
+        return jsonify({'employee': output})
 
     def delete(self):
         pass
