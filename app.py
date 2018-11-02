@@ -57,7 +57,15 @@ class Employees(Resource):
 
 
     def post(self):
-        pass
+        employee = mongo.db.employees
+        name = request.json['name']
+        email = request.json['email']
+        phone = request.json['phone']
+        dep = request.json['dep']
+        employee_id = employee.insert({'name': name, 'email': email, 'phone': phone, 'dep': dep})
+        new = employee.find_one({'_id': employee_id})
+        emp = {'name': str(new['name']), 'email': str(new['email']), 'phone': str(new['phone']), 'dep': str(new['dep'])}
+        return jsonify({'employee': emp})
 
     def put(self):
         pass
